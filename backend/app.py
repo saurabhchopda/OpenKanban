@@ -11,18 +11,17 @@ from flask_jwt_extended import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
 # Configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL", "postgresql://saurabhchopda:password@localhost:5432/openkanban"
-)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JWT_SECRET_KEY"] = os.environ.get(
-    "JWT_SECRET_KEY", b"\x19a8arh\x1a6n\xd0l\x84\x0b\xc7{K"
-)  # Change in production
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")  # Change in production
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=6)
 app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
 # app.config["JWT_COOKIE_SECURE"] = False  # Disable for development (no HTTPS)

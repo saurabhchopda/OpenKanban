@@ -69,7 +69,7 @@ const Login: React.FC = () => {
     setLoading(false);
 
     if (result.success) {
-      navigate("/");
+      navigate("/board");
     } else {
       setError(result.message || "Login failed");
     }

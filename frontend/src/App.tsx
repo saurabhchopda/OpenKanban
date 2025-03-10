@@ -2,19 +2,18 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/theme-provider";
-// import { Toaster } from "@/components/ui/toaster";
 
 import KanbanBoard from "./components/KanbanBoard";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Navbar from "./components/Navbar";
 import { AuthProvider } from "./contexts/AuthContext";
+import { LandingPage } from "./components/LandingPage";
 
 const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-slate-50">
     <Navbar />
     <main className="container mx-auto pt-16">{children}</main>
-    {/* <Toaster /> */}
   </div>
 );
 
@@ -24,8 +23,9 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route
-              path="/"
+              path="/board"
               element={
                 <Layout>
                   <Dashboard />
