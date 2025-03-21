@@ -21,10 +21,10 @@ interface DragItem {
   columnId: number;
 }
 
-interface Assignee {
-  name: string;
-  avatar?: string;
-}
+// interface Assignee {
+//   name: string;
+//   avatar?: string;
+// }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, columnId, onMove }) => {
   const [{ isDragging }, drag] = useDrag({
@@ -70,14 +70,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, columnId, onMove }) => {
           {task.description && (
             <div className="flex items-center text-xs text-slate-500 mb-2">
               <AlignLeft className="h-3 w-3 mr-1" />
-              <span>Has description</span>
+              <span>{task.description}</span>
             </div>
           )}
 
-          {task.dueDate && (
+          {task.due_date && (
             <div className="flex items-center text-xs text-slate-500 mb-2">
               <Calendar className="h-3 w-3 mr-1" />
-              <span>{new Date(task.dueDate).toLocaleDateString()}</span>
+              <span>{new Date(task.due_date).toLocaleDateString()}</span>
             </div>
           )}
 

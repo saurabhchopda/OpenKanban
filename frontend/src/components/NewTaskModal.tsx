@@ -41,11 +41,12 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({
   onAddTask,
 }) => {
   const [taskData, setTaskData] = useState<TaskData>({
+    board_id: 0,
     title: "",
     description: "",
     priority: "medium",
     type: "task",
-    dueDate: undefined,
+    due_date: undefined,
   });
 
   const handleChange = (
@@ -65,7 +66,7 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({
   const handleDateChange = (date: Date | undefined) => {
     setTaskData((prev) => ({
       ...prev,
-      dueDate: date ? date.toISOString() : undefined,
+      due_date: date ? date.toISOString() : undefined,
     }));
   };
 
@@ -73,11 +74,12 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({
     e.preventDefault();
     onAddTask(taskData);
     setTaskData({
+      board_id: 0,
       title: "",
       description: "",
       priority: "medium",
       type: "task",
-      dueDate: undefined,
+      due_date: undefined,
     });
   };
 
@@ -162,7 +164,7 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="dueDate" className="text-right">
+              <Label htmlFor="due_date" className="text-right">
                 Due Date
               </Label>
               <Popover>
@@ -172,8 +174,8 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({
                     className="col-span-3 justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {taskData.dueDate ? (
-                      format(new Date(taskData.dueDate), "PPP")
+                    {taskData.due_date ? (
+                      format(new Date(taskData.due_date), "PPP")
                     ) : (
                       <span>Pick a date</span>
                     )}
@@ -183,7 +185,9 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({
                   <Calendar
                     mode="single"
                     selected={
-                      taskData.dueDate ? new Date(taskData.dueDate) : undefined
+                      taskData.due_date
+                        ? new Date(taskData.due_date)
+                        : undefined
                     }
                     onSelect={handleDateChange}
                   />

@@ -9,7 +9,8 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { toast } from "sonner";
 import { Task } from "@/types/task";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BASE_API_URL = "http://127.0.0.1:5000";
 
@@ -20,7 +21,7 @@ interface Column {
 }
 
 const KanbanBoard: React.FC = () => {
-  const { boardId } = useParams<{ boardId: string }>();
+  const { id: boardId } = useParams<{ id: string }>();
   const [columns, setColumns] = useState<Column[]>([
     { id: 1, title: "To Do", tasks: [] },
     { id: 2, title: "In Progress", tasks: [] },
@@ -30,9 +31,18 @@ const KanbanBoard: React.FC = () => {
   const [newColumnTitle, setNewColumnTitle] = useState<string>("");
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
   const [activeColumn, setActiveColumn] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  console.log("board_id", boardId);
   // Fetch data from backend
   useEffect(() => {
+    if (!currentUser && !loading) {
+      navigate("/login");
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -43,12 +53,15 @@ const KanbanBoard: React.FC = () => {
           },
         });
         const data = await response.json();
+        console.log(data);
         if (data.columns) {
           setColumns(data.columns);
         }
       } catch (error) {
         console.error("Error fetching board data:", error);
         toast.error("Could not load board data");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -66,6 +79,25 @@ const KanbanBoard: React.FC = () => {
       tasks: [],
     };
 
+    console.log(newColumn);
+
+    const addColumnData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        await fetch(`${BASE_API_URL}/api/boards/${boardId}/columns`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ...newColumn }),
+        });
+      } catch (error) {
+        console.error("Error creating task:", error);
+      }
+    };
+    addColumnData();
     setColumns([...columns, newColumn]);
     setNewColumnTitle("");
   };
@@ -133,7 +165,11 @@ const KanbanBoard: React.FC = () => {
     const newTask: Task = {
       ...taskData,
       id: Date.now(),
+      board_id: parseInt(boardId ? boardId : "1", 10),
+      assignee_id: currentUser?.id,
     };
+
+    console.log(newTask);
 
     setColumns((prevColumns) => {
       return prevColumns.map((column) => {
@@ -154,7 +190,7 @@ const KanbanBoard: React.FC = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        await fetch(`${BASE_API_URL}/api/tasks`, {
+        await fetch(`${BASE_API_URL}/api/columns/${activeColumn}/tasks`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

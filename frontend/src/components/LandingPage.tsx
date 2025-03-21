@@ -22,13 +22,13 @@ export function LandingPage() {
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-          <div className="container px-4 md:px-6">
+        <section className="bg-[url(/image.jpg)] w-full py-12 md:py-24 lg:py-32 xl:py-48">
+          <div className="container max-w-none px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
                 OpenKanban
               </h1>
-              <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+              <p className="mx-auto max-w-[700px] text-gray-900 md:text-xl dark:text-gray-600">
                 A simple, powerful, and open-source Kanban board to manage your
                 projects with ease.
               </p>
@@ -38,7 +38,7 @@ export function LandingPage() {
                 </Button>
 
                 <a
-                  href="https://github.com/yourusername/openkanban"
+                  href="https://github.com/saurabhchopda/openkanban"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -53,7 +53,7 @@ export function LandingPage() {
 
         {/* Features Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
-          <div className="container px-4 md:px-6">
+          <div className="container max-w-none px-4 md:px-6">
             <h2 className="text-3xl font-bold tracking-tighter text-center mb-12">
               Features
             </h2>
@@ -97,7 +97,7 @@ export function LandingPage() {
 
         {/* CTA Section */}
         <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
+          <div className="container max-w-none px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <h2 className="text-3xl font-bold tracking-tighter">
                 Ready to get started?
@@ -119,7 +119,7 @@ export function LandingPage() {
 
       {/* Footer */}
       <footer className="w-full border-t py-6">
-        <div className="container px-4 md:px-6">
+        <div className="container max-w-none px-4 md:px-6">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-sm text-gray-500 dark:text-gray-400">
               © 2024 OpenKanban. All rights reserved.

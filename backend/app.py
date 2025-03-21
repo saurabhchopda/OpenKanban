@@ -13,16 +13,16 @@ from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-
 app = Flask(__name__)
 CORS(app)
 
+load_dotenv()
+
 # Configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")  # Change in production
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=6)
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")  # Change in production
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
 # app.config["JWT_COOKIE_SECURE"] = False  # Disable for development (no HTTPS)
 # app.config["JWT_COOKIE_SAMESITE"] = "Lax"  # Less strict for development
@@ -81,7 +81,7 @@ class Board(db.Model):
 
 
 class BoardColumn(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(100), nullable=False)
     board_id = db.Column(db.Integer, db.ForeignKey("board.id"), nullable=False)
     position = db.Column(db.Integer, default=0)
@@ -103,7 +103,8 @@ class BoardColumn(db.Model):
 
 
 class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    board_id = db.Column(db.Integer, db.ForeignKey("board.id"), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     column_id = db.Column(db.Integer, db.ForeignKey("board_column.id"), nullable=False)
@@ -111,7 +112,7 @@ class Task(db.Model):
     assignee_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     priority = db.Column(db.String(20), default="medium")
     type = db.Column(db.String(20), default="task")
-    due_date = db.Column(db.DateTime)
+    due_date = db.Column(db.Date)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime,
@@ -123,10 +124,12 @@ class Task(db.Model):
         return f"<Task {self.title}>"
 
     def to_dict(self):
-        assignee = Users.query.get(self.assignee_id) if self.assignee_id else None
+        # assignee = Users.query.get(self.assignee_id) if self.assignee_id else None
+        assignee = db.session.get(Users, self.assignee_id) if self.assignee_id else None
 
         return {
             "id": self.id,
+            "board_id": self.board_id,
             "title": self.title,
             "description": self.description,
             "column_id": self.column_id,
@@ -134,9 +137,9 @@ class Task(db.Model):
             "assignee": assignee.to_dict() if assignee else None,
             "priority": self.priority,
             "type": self.type,
-            "due_date": self.due_date.isoformat() if self.due_date else None,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
+            "due_date": self.due_date,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
         }
 
 
@@ -276,6 +279,7 @@ def create_board():
 def get_board(board_id):
     user_id = int(get_jwt_identity())
     board = Board.query.filter_by(id=board_id, owner_id=user_id).first()
+    print(board)
 
     if not board:
         return jsonify({"message": "Board not found"}), 404
@@ -413,7 +417,13 @@ def create_task(column_id):
         or -1
     )
 
+    dd = data.get("due_date") if data.get("due_date") else datetime.now()
+
+    date_obj = datetime.strptime(dd, "%Y-%m-%dT%H:%M:%S.%fZ")
+    formatted_date = date_obj.strftime("%Y-%m-%d")
+
     new_task = Task(
+        board_id=data.get("board_id"),
         title=data["title"],
         description=data.get("description", ""),
         column_id=column_id,
@@ -421,9 +431,7 @@ def create_task(column_id):
         assignee_id=data.get("assignee_id"),
         priority=data.get("priority", "medium"),
         type=data.get("type", "task"),
-        due_date=(
-            datetime.fromisoformat(data["due_date"]) if data.get("due_date") else None
-        ),
+        due_date=formatted_date,
     )
 
     db.session.add(new_task)
